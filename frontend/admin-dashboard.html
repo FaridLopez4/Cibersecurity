@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Administrador - Padel Online</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .dashboard-container {
+            max-width: 1400px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .user-details h2 {
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+        
+        .user-details p {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .logout-btn {
+            background: #1a1a1a;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #333333;
+            transform: translateY(-2px);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            background: #f0f0f0;
+            color: #1a1a1a;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover, .nav-btn.active {
+            background: #1a1a1a;
+            color: white;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card.today {
+            border-left: 5px solid #28a745;
+        }
+        
+        .stat-card.week {
+            border-left: 5px solid #007bff;
+        }
+        
+        .stat-card.month {
+            border-left: 5px solid #ffc107;
+        }
+        
+        .stat-card.total {
+            border-left: 5px solid #1a1a1a;
+        }
+        
+        .stat-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-sub {
+            color: #999;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+        
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .section h3 {
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .period-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .period-btn {
+            background: #f0f0f0;
+            color: #1a1a1a;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .period-btn:hover, .period-btn.active {
+            background: #1a1a1a;
+            color: white;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #1a1a1a;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #1a1a1a;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .status-pendiente {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-confirmada {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-cancelada {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-completada {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .canchas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .cancha-stat {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .cancha-stat .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+        
+        .cancha-stat .name {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container dashboard-container">
+        <div class="header">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div class="user-details">
+                    <h2 id="userName">Administrador</h2>
+                    <p id="userPhone">Teléfono</p>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="window.location.href='/admin-dashboard.html'">Dashboard Admin</button>
+            <button class="nav-btn" onclick="window.location.href='/mis-reservas.html'">Mis Reservas</button>
+            <button class="nav-btn" onclick="window.location.href='/ver-canchas.html'">Ver Canchas</button>
+            <button class="nav-btn" onclick="window.location.href='/nueva-reserva.html'">Nueva Reserva</button>
+            <button class="nav-btn" onclick="window.location.href='/mi-perfil.html'">Mi Perfil</button>
+        </div>
+        
+        <h1 style="color: #1a1a1a; margin-bottom: 30px;">📊 Dashboard Administrador</h1>
+        
+        <div id="message" class="message" style="display: none;"></div>
+        
+        <!-- Estadísticas Generales -->
+        <div class="stats-grid">
+            <div class="stat-card today">
+                <div class="stat-icon">📅</div>
+                <div class="stat-number" id="statHoy">$0</div>
+                <div class="stat-label">Ventas Hoy</div>
+                <div class="stat-sub" id="statHoyReservas">0 reservas</div>
+            </div>
+            <div class="stat-card week">
+                <div class="stat-icon">📊</div>
+                <div class="stat-number" id="statSemana">$0</div>
+                <div class="stat-label">Ventas Semana</div>
+                <div class="stat-sub" id="statSemanaReservas">0 reservas</div>
+            </div>
+            <div class="stat-card month">
+                <div class="stat-icon">📈</div>
+                <div class="stat-number" id="statMes">$0</div>
+                <div class="stat-label">Ventas Mes</div>
+                <div class="stat-sub" id="statMesReservas">0 reservas</div>
+            </div>
+            <div class="stat-card total">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-number" id="statTotal">0</div>
+                <div class="stat-label">Total Reservas</div>
+                <div class="stat-sub">Todas las épocas</div>
+            </div>
+        </div>
+        
+        <!-- Ventas por Período -->
+        <div class="section">
+            <h3>💰 Ventas Detalladas</h3>
+            <div class="period-selector">
+                <button class="period-btn active" onclick="cargarVentas('hoy', this)">Hoy</button>
+                <button class="period-btn" onclick="cargarVentas('semana', this)">Semana</button>
+                <button class="period-btn" onclick="cargarVentas('mes', this)">Mes</button>
+            </div>
+            <div class="table-container">
+                <table id="ventasTable">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cancha</th>
+                            <th>Cliente</th>
+                            <th>Teléfono</th>
+                            <th>Horario</th>
+                            <th>Duración</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ventasBody">
+                        <tr>
+                            <td colspan="8" style="text-align: center;">Cargando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Todas las Reservaciones -->
+        <div class="section">
+            <h3>📋 Todas las Reservaciones</h3>
+            <div class="table-container">
+                <table id="reservasTable">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cancha</th>
+                            <th>Cliente</th>
+                            <th>Teléfono</th>
+                            <th>Horario</th>
+                            <th>Duración</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reservasBody">
+                        <tr>
+                            <td colspan="8" style="text-align: center;">Cargando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Canchas Más Reservadas -->
+        <div class="section">
+            <h3>🏆 Canchas Más Reservadas</h3>
+            <div class="canchas-grid" id="canchasTop">
+                <div style="text-align: center;">Cargando...</div>
+            </div>
+        </div>
+        
+        <!-- Reservas por Estado -->
+        <div class="section">
+            <h3>📊 Reservas por Estado</h3>
+            <div class="stats-grid" id="estadosGrid">
+                <div style="text-align: center;">Cargando...</div>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading"></div>
+    </div>
+    
+    <script>
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user'));
+        
+        if (!token || !user || user.rol !== 1) {
+            window.location.href = '/login';
+        }
+        
+        document.getElementById('userName').textContent = user.nombre + ' ' + user.apellido;
+        document.getElementById('userPhone').textContent = user.telefono;
+        document.getElementById('userAvatar').textContent = user.nombre.charAt(0).toUpperCase();
+        
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        async function cargarDashboard() {
+            const loading = document.getElementById('loading');
+            loading.classList.add('show');
+            
+            try {
+                const response = await fetch('/api/reservas/dashboard', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                console.log('Dashboard response:', data);
+                
+                if (data.success) {
+                    const dashboard = data.dashboard;
+                    console.log('Dashboard data:', dashboard);
+                    
+                    // Actualizar estadísticas
+                    const totalHoy = parseFloat(dashboard.hoy.total) || 0;
+                    const cantidadHoy = dashboard.hoy.cantidad || 0;
+                    document.getElementById('statHoy').textContent = `$${totalHoy.toFixed(2)}`;
+                    document.getElementById('statHoyReservas').textContent = `${cantidadHoy} reservas`;
+                    
+                    const totalSemana = parseFloat(dashboard.semana.total) || 0;
+                    const cantidadSemana = dashboard.semana.cantidad || 0;
+                    document.getElementById('statSemana').textContent = `$${totalSemana.toFixed(2)}`;
+                    document.getElementById('statSemanaReservas').textContent = `${cantidadSemana} reservas`;
+                    
+                    const totalMes = parseFloat(dashboard.mes.total) || 0;
+                    const cantidadMes = dashboard.mes.cantidad || 0;
+                    document.getElementById('statMes').textContent = `$${totalMes.toFixed(2)}`;
+                    document.getElementById('statMesReservas').textContent = `${cantidadMes} reservas`;
+                    
+                    const totalReservas = dashboard.porEstado.reduce((sum, e) => sum + e.cantidad, 0);
+                    document.getElementById('statTotal').textContent = totalReservas;
+                    
+                    // Canchas más reservadas
+                    const canchasTopDiv = document.getElementById('canchasTop');
+                    canchasTopDiv.innerHTML = '';
+                    dashboard.canchasTop.forEach(cancha => {
+                        const div = document.createElement('div');
+                        div.className = 'cancha-stat';
+                        div.innerHTML = `
+                            <div class="number">${cancha.total_reservas}</div>
+                            <div class="name">${cancha.nombre}</div>
+                        `;
+                        canchasTopDiv.appendChild(div);
+                    });
+                    
+                    // Reservas por estado
+                    const estadosGrid = document.getElementById('estadosGrid');
+                    estadosGrid.innerHTML = '';
+                    dashboard.porEstado.forEach(estado => {
+                        const div = document.createElement('div');
+                        div.className = 'stat-card';
+                        div.innerHTML = `
+                            <div class="stat-number">${estado.cantidad}</div>
+                            <div class="stat-label">${estado.estado}</div>
+                        `;
+                        estadosGrid.appendChild(div);
+                    });
+                } else {
+                    console.error('Dashboard error:', data.message);
+                    showMessage(data.message || 'Error al cargar dashboard', 'error');
+                }
+            } catch (error) {
+                console.error('Error al cargar dashboard:', error);
+                showMessage('Error al cargar dashboard', 'error');
+            } finally {
+                loading.classList.remove('show');
+            }
+        }
+        
+        async function cargarVentas(periodo, btn) {
+            // Actualizar botones activos
+            document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const loading = document.getElementById('loading');
+            loading.classList.add('show');
+            
+            try {
+                const response = await fetch(`/api/reservas/estadisticas?periodo=${periodo}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderizarVentas(data.ventas);
+                }
+            } catch (error) {
+                console.error('Error al cargar ventas:', error);
+                showMessage('Error al cargar ventas', 'error');
+            } finally {
+                loading.classList.remove('show');
+            }
+        }
+        
+        async function cargarTodasReservas() {
+            const loading = document.getElementById('loading');
+            loading.classList.add('show');
+            
+            try {
+                const response = await fetch('/api/reservas/todas', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderizarReservas(data.reservas);
+                }
+            } catch (error) {
+                console.error('Error al cargar reservas:', error);
+                showMessage('Error al cargar reservas', 'error');
+            } finally {
+                loading.classList.remove('show');
+            }
+        }
+        
+        function renderizarVentas(ventas) {
+            const tbody = document.getElementById('ventasBody');
+            tbody.innerHTML = '';
+            
+            if (ventas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No hay ventas en este período</td></tr>';
+                return;
+            }
+            
+            ventas.forEach(venta => {
+                const tr = document.createElement('tr');
+                const duracionHoras = venta.duracion_minutos / 60;
+                const total = duracionHoras * venta.precio_hora;
+                
+                tr.innerHTML = `
+                    <td>${new Date(venta.fecha).toLocaleDateString('es-ES')}</td>
+                    <td>${venta.nombre_cancha}</td>
+                    <td>${venta.nombre_usuario} ${venta.apellido_usuario}</td>
+                    <td>${venta.telefono_usuario}</td>
+                    <td>${venta.hora_inicio.substring(0, 5)}</td>
+                    <td>${duracionHoras}h</td>
+                    <td>$${total.toFixed(2)}</td>
+                    <td><span class="status-badge status-${venta.estado.toLowerCase()}">${venta.estado}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function renderizarReservas(reservas) {
+            const tbody = document.getElementById('reservasBody');
+            tbody.innerHTML = '';
+            
+            if (reservas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No hay reservaciones</td></tr>';
+                return;
+            }
+            
+            reservas.forEach(reserva => {
+                const tr = document.createElement('tr');
+                const duracionHoras = reserva.duracion_minutos / 60;
+                const total = duracionHoras * reserva.precio_hora;
+                
+                tr.innerHTML = `
+                    <td>${new Date(reserva.fecha).toLocaleDateString('es-ES')}</td>
+                    <td>${reserva.nombre_cancha}</td>
+                    <td>${reserva.nombre_usuario} ${reserva.apellido_usuario}</td>
+                    <td>${reserva.telefono_usuario}</td>
+                    <td>${reserva.hora_inicio.substring(0, 5)}</td>
+                    <td>${duracionHoras}h</td>
+                    <td>$${total.toFixed(2)}</td>
+                    <td><span class="status-badge status-${reserva.estado.toLowerCase()}">${reserva.estado}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+        
+        // Cargar datos al inicio
+        cargarDashboard();
+        cargarVentas('hoy', document.querySelector('.period-btn.active'));
+        cargarTodasReservas();
+    </script>
+</body>
+</html>

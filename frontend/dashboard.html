@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Padel Online</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .dashboard-container {
+            max-width: 900px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .user-details h2 {
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+        
+        .user-details p {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .logout-btn {
+            background: #1a1a1a;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #333333;
+            transform: translateY(-2px);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .dashboard-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dashboard-card h3 {
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .dashboard-card p {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .dashboard-card .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .welcome-section {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .welcome-section h2 {
+            margin-bottom: 10px;
+        }
+        
+        .welcome-section p {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container dashboard-container">
+        <div class="header">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-details">
+                    <h2 id="userName">Usuario</h2>
+                    <p id="userPhone">Teléfono</p>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+        </div>
+        
+        <div class="welcome-section">
+            <h2>¡Bienvenido a Padel Online! 🎾</h2>
+            <p>Gestiona tus reservas y explora nuestras canchas</p>
+        </div>
+        
+        <div class="nav-buttons" style="display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap;">
+            <button class="nav-btn" style="background: #1a1a1a; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;" onclick="window.location.href='/dashboard.html'">Dashboard</button>
+            <button class="nav-btn" id="adminBtn" style="background: #ffc107; color: #1a1a1a; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; display: none;" onclick="window.location.href='/admin-dashboard.html'">📊 Dashboard Admin</button>
+            <button class="nav-btn" style="background: #f0f0f0; color: #1a1a1a; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;" onclick="window.location.href='/mis-reservas.html'">Mis Reservas</button>
+            <button class="nav-btn" style="background: #f0f0f0; color: #1a1a1a; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;" onclick="window.location.href='/ver-canchas.html'">Ver Canchas</button>
+            <button class="nav-btn" style="background: #f0f0f0; color: #1a1a1a; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;" onclick="window.location.href='/nueva-reserva.html'">Nueva Reserva</button>
+            <button class="nav-btn" style="background: #f0f0f0; color: #1a1a1a; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;" onclick="window.location.href='/mi-perfil.html'">Mi Perfil</button>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="dashboard-card" onclick="window.location.href='/mis-reservas.html'">
+                <div class="icon">📅</div>
+                <h3>Mis Reservas</h3>
+                <p>Ver y gestionar tus reservas activas</p>
+            </div>
+            
+            <div class="dashboard-card" onclick="window.location.href='/ver-canchas.html'">
+                <div class="icon">🏟️</div>
+                <h3>Ver Canchas</h3>
+                <p>Explora todas las canchas disponibles</p>
+            </div>
+            
+            <div class="dashboard-card" onclick="window.location.href='/nueva-reserva.html'">
+                <div class="icon">➕</div>
+                <h3>Nueva Reserva</h3>
+                <p>Reserva una cancha ahora</p>
+            </div>
+            
+            <div class="dashboard-card" onclick="window.location.href='/mi-perfil.html'">
+                <div class="icon">👤</div>
+                <h3>Mi Perfil</h3>
+                <p>Actualiza tu información personal</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Verificar si el usuario está logueado
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user'));
+        
+        if (!token || !user) {
+            window.location.href = '/login';
+        }
+        
+        // Mostrar información del usuario
+        document.getElementById('userName').textContent = user.nombre + ' ' + user.apellido;
+        document.getElementById('userPhone').textContent = user.telefono;
+        document.getElementById('userAvatar').textContent = user.nombre.charAt(0).toUpperCase();
+        
+        // Mostrar botón de administrador si es admin
+        if (user.rol === 1) {
+            document.getElementById('adminBtn').style.display = 'block';
+        }
+        
+        function logout() {
+            const token = localStorage.getItem('token');
+            
+            fetch('/api/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token })
+            }).then(() => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            }).catch(() => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            });
+        }
+    </script>
+</body>
+</html>

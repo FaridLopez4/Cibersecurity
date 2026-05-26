@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Canchas - Padel Online</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .user-details h2 {
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+        
+        .user-details p {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .logout-btn {
+            background: #1a1a1a;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #333333;
+            transform: translateY(-2px);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            background: #f0f0f0;
+            color: #1a1a1a;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover, .nav-btn.active {
+            background: #1a1a1a;
+            color: white;
+        }
+        
+        .canchas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .cancha-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .cancha-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .cancha-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 4em;
+        }
+        
+        .cancha-content {
+            padding: 25px;
+        }
+        
+        .cancha-nombre {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+        
+        .cancha-descripcion {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .cancha-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 3px;
+        }
+        
+        .info-value {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .precio {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+        }
+        
+        .precio span {
+            font-size: 0.6em;
+            color: #666;
+            font-weight: normal;
+        }
+        
+        .reservar-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .reservar-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(26, 26, 26, 0.3);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .no-canchas {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .no-canchas h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container dashboard-container">
+        <div class="header">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-details">
+                    <h2 id="userName">Usuario</h2>
+                    <p id="userPhone">Teléfono</p>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="window.location.href='/dashboard.html'">Dashboard</button>
+            <button class="nav-btn" onclick="window.location.href='/mis-reservas.html'">Mis Reservas</button>
+            <button class="nav-btn active" onclick="window.location.href='/ver-canchas.html'">Ver Canchas</button>
+            <button class="nav-btn" onclick="window.location.href='/nueva-reserva.html'">Nueva Reserva</button>
+            <button class="nav-btn" onclick="window.location.href='/mi-perfil.html'">Mi Perfil</button>
+        </div>
+        
+        <h1 style="color: #1a1a1a; margin-bottom: 30px;">🏟️ Nuestras Canchas</h1>
+        
+        <div id="loading" class="loading">
+            <div class="loading show"></div>
+            <p>Cargando canchas...</p>
+        </div>
+        
+        <div id="canchasContainer" class="canchas-grid" style="display: none;"></div>
+    </div>
+    
+    <script>
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user'));
+        
+        if (!token || !user) {
+            window.location.href = '/login';
+        }
+        
+        document.getElementById('userName').textContent = user.nombre + ' ' + user.apellido;
+        document.getElementById('userPhone').textContent = user.telefono;
+        document.getElementById('userAvatar').textContent = user.nombre.charAt(0).toUpperCase();
+        
+        async function cargarCanchas() {
+            try {
+                const response = await fetch('/api/canchas');
+                const data = await response.json();
+                
+                document.getElementById('loading').style.display = 'none';
+                
+                if (data.success && data.canchas.length > 0) {
+                    const container = document.getElementById('canchasContainer');
+                    container.style.display = 'grid';
+                    
+                    data.canchas.forEach(cancha => {
+                        container.innerHTML += `
+                            <div class="cancha-card">
+                                <div class="cancha-image">🎾</div>
+                                <div class="cancha-content">
+                                    <div class="cancha-nombre">${cancha.nombre}</div>
+                                    <div class="cancha-descripcion">${cancha.descripcion || 'Cancha profesional de pádel'}</div>
+                                    <div class="cancha-info">
+                                        <div class="info-item">
+                                            <span class="info-label">Ubicación</span>
+                                            <span class="info-value">${cancha.ubicacion || 'N/A'}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Estado</span>
+                                            <span class="info-value">${cancha.activa ? 'Activa' : 'Inactiva'}</span>
+                                        </div>
+                                    </div>
+                                    <div class="precio">
+                                        $${cancha.precio_hora}
+                                        <span>/hora</span>
+                                    </div>
+                                    <button class="reservar-btn" onclick="reservar(${cancha.id_cancha}, '${cancha.nombre}')">
+                                        Reservar Ahora
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    document.getElementById('canchasContainer').innerHTML = `
+                        <div class="no-canchas">
+                            <h3>No hay canchas disponibles</h3>
+                            <p>Pronto tendremos más canchas disponibles</p>
+                        </div>
+                    `;
+                    document.getElementById('canchasContainer').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error al cargar canchas:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('canchasContainer').innerHTML = '<p style="text-align: center; color: #dc3545;">Error al cargar canchas</p>';
+                document.getElementById('canchasContainer').style.display = 'block';
+            }
+        }
+        
+        function reservar(idCancha, nombreCancha) {
+            localStorage.setItem('canchaSeleccionada', JSON.stringify({ id: idCancha, nombre: nombreCancha }));
+            window.location.href = '/nueva-reserva.html';
+        }
+        
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+        
+        cargarCanchas();
+    </script>
+</body>
+</html>

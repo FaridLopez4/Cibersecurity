@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Contraseña - Padel Online</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>🎾 Padel Online</h1>
+            <p>Recupera tu contraseña</p>
+        </div>
+        
+        <div id="message" class="message" style="display: none;"></div>
+        
+        <!-- Paso 1: Solicitar recuperación -->
+        <form id="recuperarForm">
+            <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <input type="tel" id="telefono" name="telefono" placeholder="5512345678" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Enviar Token de Recuperación</button>
+        </form>
+        
+        <!-- Paso 2: Restablecer contraseña -->
+        <form id="restablecerForm" style="display: none;">
+            <div class="form-group">
+                <label for="token">Token de Recuperación</label>
+                <input type="text" id="token" name="token" placeholder="Ingresa el token recibido" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="nuevaPassword">Nueva Contraseña</label>
+                <div class="password-container">
+                    <input type="password" id="nuevaPassword" name="nuevaPassword" placeholder="Mínimo 6 caracteres" required minlength="6">
+                    <button type="button" class="toggle-password" onclick="togglePassword('nuevaPassword')">👁️</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmNuevaPassword">Confirmar Nueva Contraseña</label>
+                <div class="password-container">
+                    <input type="password" id="confirmNuevaPassword" name="confirmNuevaPassword" placeholder="Repite tu nueva contraseña" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('confirmNuevaPassword')">👁️</button>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Restablecer Contraseña</button>
+            <button type="button" class="btn btn-secondary" onclick="volverPaso1()">Volver</button>
+        </form>
+        
+        <div class="loading" id="loading"></div>
+        
+        <div class="links">
+            <p><a href="/login">Volver al login</a></p>
+        </div>
+    </div>
+    
+    <script>
+        let resetToken = '';
+        
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const button = event.target;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🔒';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️';
+            }
+        }
+        
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        function volverPaso1() {
+            document.getElementById('recuperarForm').style.display = 'block';
+            document.getElementById('restablecerForm').style.display = 'none';
+        }
+        
+        // Paso 1: Solicitar token de recuperación
+        document.getElementById('recuperarForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const telefono = document.getElementById('telefono').value;
+            const loading = document.getElementById('loading');
+            
+            loading.classList.add('show');
+            
+            try {
+                const response = await fetch('/api/auth/recuperar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ telefono })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resetToken = data.resetToken;
+                    showMessage('Token generado: ' + resetToken + '. (En producción se enviaría por email)', 'success');
+                    
+                    // Mostrar paso 2
+                    document.getElementById('recuperarForm').style.display = 'none';
+                    document.getElementById('restablecerForm').style.display = 'block';
+                    
+                    // Pre-llenar el token
+                    document.getElementById('token').value = resetToken;
+                } else {
+                    showMessage(data.message || 'Error al generar token', 'error');
+                }
+            } catch (error) {
+                showMessage('Error de conexión. Inténtalo nuevamente.', 'error');
+            } finally {
+                loading.classList.remove('show');
+            }
+        });
+        
+        // Paso 2: Restablecer contraseña
+        document.getElementById('restablecerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const nuevaPassword = document.getElementById('nuevaPassword').value;
+            const confirmNuevaPassword = document.getElementById('confirmNuevaPassword').value;
+            const token = document.getElementById('token').value;
+            
+            if (nuevaPassword !== confirmNuevaPassword) {
+                showMessage('Las contraseñas no coinciden', 'error');
+                return;
+            }
+            
+            const loading = document.getElementById('loading');
+            loading.classList.add('show');
+            
+            try {
+                const response = await fetch('/api/auth/restablecer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token, nuevaPassword })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('¡Contraseña restablecida exitosamente! Redirigiendo al login...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                } else {
+                    showMessage(data.message || 'Error al restablecer contraseña', 'error');
+                }
+            } catch (error) {
+                showMessage('Error de conexión. Inténtalo nuevamente.', 'error');
+            } finally {
+                loading.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

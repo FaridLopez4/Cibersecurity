@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Padel Online</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .dashboard-container {
+            max-width: 800px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .user-details h2 {
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+        
+        .user-details p {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .logout-btn {
+            background: #1a1a1a;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #333333;
+            transform: translateY(-2px);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            background: #f0f0f0;
+            color: #1a1a1a;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover, .nav-btn.active {
+            background: #1a1a1a;
+            color: white;
+        }
+        
+        .profile-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 5px solid #1a1a1a;
+        }
+        
+        .profile-section h3 {
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .info-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .info-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .info-value {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .password-section {
+            background: #fff3cd;
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 5px solid #ffc107;
+        }
+        
+        .password-section h3 {
+            color: #856404;
+            margin-bottom: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container dashboard-container">
+        <div class="header">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-details">
+                    <h2 id="userName">Usuario</h2>
+                    <p id="userPhone">Teléfono</p>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="window.location.href='/dashboard.html'">Dashboard</button>
+            <button class="nav-btn" onclick="window.location.href='/mis-reservas.html'">Mis Reservas</button>
+            <button class="nav-btn" onclick="window.location.href='/ver-canchas.html'">Ver Canchas</button>
+            <button class="nav-btn" onclick="window.location.href='/nueva-reserva.html'">Nueva Reserva</button>
+            <button class="nav-btn active" onclick="window.location.href='/mi-perfil.html'">Mi Perfil</button>
+        </div>
+        
+        <h1 style="color: #1a1a1a; margin-bottom: 30px;">👤 Mi Perfil</h1>
+        
+        <div id="message" class="message" style="display: none;"></div>
+        
+        <!-- Información Personal -->
+        <div class="profile-section">
+            <h3>📋 Información Personal</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Nombre</div>
+                    <div class="info-value" id="profileNombre">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Apellido</div>
+                    <div class="info-value" id="profileApellido">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Teléfono</div>
+                    <div class="info-value" id="profileTelefono">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value" id="profileEmail">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Rol</div>
+                    <div class="info-value" id="profileRol">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Fecha de Registro</div>
+                    <div class="info-value" id="profileFechaRegistro">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Estadísticas -->
+        <div class="profile-section">
+            <h3>📊 Mis Estadísticas</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="statReservas">0</div>
+                    <div class="stat-label">Reservas Totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statActivas">0</div>
+                    <div class="stat-label">Reservas Activas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statCanceladas">0</div>
+                    <div class="stat-label">Canceladas</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actualizar Información -->
+        <div class="profile-section">
+            <h3>✏️ Actualizar Información</h3>
+            <form id="updateForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nuevoNombre">Nombre</label>
+                        <input type="text" id="nuevoNombre" name="nuevoNombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nuevoApellido">Apellido</label>
+                        <input type="text" id="nuevoApellido" name="nuevoApellido" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nuevoEmail">Email</label>
+                        <input type="email" id="nuevoEmail" name="nuevoEmail">
+                    </div>
+                    <div class="form-group">
+                        <label for="nuevoTelefono">Teléfono</label>
+                        <input type="tel" id="nuevoTelefono" name="nuevoTelefono" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Actualizar Información</button>
+            </form>
+        </div>
+        
+        <!-- Cambiar Contraseña -->
+        <div class="password-section">
+            <h3>🔒 Cambiar Contraseña</h3>
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label for="passwordActual">Contraseña Actual</label>
+                    <input type="password" id="passwordActual" name="passwordActual" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nuevaPassword">Nueva Contraseña</label>
+                        <input type="password" id="nuevaPassword" name="nuevaPassword" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmarPassword">Confirmar Nueva Contraseña</label>
+                        <input type="password" id="confirmarPassword" name="confirmarPassword" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
+            </form>
+        </div>
+        
+        <div class="loading" id="loading"></div>
+    </div>
+    
+    <script>
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user'));
+        
+        if (!token || !user) {
+            window.location.href = '/login';
+        }
+        
+        document.getElementById('userName').textContent = user.nombre + ' ' + user.apellido;
+        document.getElementById('userPhone').textContent = user.telefono;
+        document.getElementById('userAvatar').textContent = user.nombre.charAt(0).toUpperCase();
+        
+        // Cargar información del perfil
+        function cargarPerfil() {
+            document.getElementById('profileNombre').textContent = user.nombre;
+            document.getElementById('profileApellido').textContent = user.apellido;
+            document.getElementById('profileTelefono').textContent = user.telefono;
+            document.getElementById('profileEmail').textContent = user.email || 'No registrado';
+            document.getElementById('profileRol').textContent = user.rol === 1 ? 'Administrador' : 'Cliente';
+            
+            // Pre-llenar formulario de actualización
+            document.getElementById('nuevoNombre').value = user.nombre;
+            document.getElementById('nuevoApellido').value = user.apellido;
+            document.getElementById('nuevoEmail').value = user.email || '';
+            document.getElementById('nuevoTelefono').value = user.telefono;
+            
+            // Cargar estadísticas
+            cargarEstadisticas();
+        }
+        
+        async function cargarEstadisticas() {
+            try {
+                const response = await fetch('/api/reservas/mis-reservas', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const reservas = data.reservas;
+                    const total = reservas.length;
+                    const activas = reservas.filter(r => r.estado === 'PENDIENTE_PAGO' || r.estado === 'CONFIRMADA').length;
+                    const canceladas = reservas.filter(r => r.estado === 'CANCELADA').length;
+                    
+                    document.getElementById('statReservas').textContent = total;
+                    document.getElementById('statActivas').textContent = activas;
+                    document.getElementById('statCanceladas').textContent = canceladas;
+                }
+            } catch (error) {
+                console.error('Error al cargar estadísticas:', error);
+            }
+        }
+        
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        document.getElementById('updateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                nombre: document.getElementById('nuevoNombre').value,
+                apellido: document.getElementById('nuevoApellido').value,
+                email: document.getElementById('nuevoEmail').value || null,
+                telefono: document.getElementById('nuevoTelefono').value
+            };
+            
+            const loading = document.getElementById('loading');
+            loading.classList.add('show');
+            
+            try {
+                const response = await fetch('/api/auth/actualizar-perfil', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Actualizar localStorage
+                    user.nombre = formData.nombre;
+                    user.apellido = formData.apellido;
+                    user.email = formData.email;
+                    user.telefono = formData.telefono;
+                    localStorage.setItem('user', JSON.stringify(user));
+                    
+                    showMessage('Información actualizada exitosamente', 'success');
+                    cargarPerfil();
+                } else {
+                    showMessage(data.message || 'Error al actualizar información', 'error');
+                }
+            } catch (error) {
+                showMessage('Error de conexión. Inténtalo nuevamente.', 'error');
+            } finally {
+                loading.classList.remove('show');
+            }
+        });
+        
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const passwordActual = document.getElementById('passwordActual').value;
+            const nuevaPassword = document.getElementById('nuevaPassword').value;
+            const confirmarPassword = document.getElementById('confirmarPassword').value;
+            
+            if (nuevaPassword !== confirmarPassword) {
+                showMessage('Las contraseñas no coinciden', 'error');
+                return;
+            }
+            
+            const loading = document.getElementById('loading');
+            loading.classList.add('show');
+            
+            try {
+                const response = await fetch('/api/auth/cambiar-password', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ passwordActual, nuevaPassword })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('Contraseña cambiada exitosamente', 'success');
+                    document.getElementById('passwordForm').reset();
+                } else {
+                    showMessage(data.message || 'Error al cambiar contraseña', 'error');
+                }
+            } catch (error) {
+                showMessage('Error de conexión. Inténtalo nuevamente.', 'error');
+            } finally {
+                loading.classList.remove('show');
+            }
+        });
+        
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+        
+        cargarPerfil();
+    </script>
+</body>
+</html>

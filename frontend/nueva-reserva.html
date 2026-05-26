@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Reserva - Padel Online</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .dashboard-container {
+            max-width: 1400px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .user-details h2 {
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+        
+        .user-details p {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .logout-btn {
+            background: #1a1a1a;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #333333;
+            transform: translateY(-2px);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            background: #f0f0f0;
+            color: #1a1a1a;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover, .nav-btn.active {
+            background: #1a1a1a;
+            color: white;
+        }
+        
+        /* Selector de Día */
+        .day-selector {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 5px solid #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .day-nav-btn {
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+        
+        .day-nav-btn:hover {
+            background: #333333;
+            transform: translateY(-2px);
+        }
+        
+        .day-nav-btn:disabled {
+            background: #e0e0e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .selected-date {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #1a1a1a;
+            text-align: center;
+        }
+        
+        .selected-date span {
+            display: block;
+            font-size: 0.7em;
+            color: #666;
+            font-weight: normal;
+            margin-top: 5px;
+        }
+        
+        /* Selector de Cancha */
+        .cancha-selector {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 5px solid #1a1a1a;
+        }
+        
+        .cancha-selector h3 {
+            color: #1a1a1a;
+            margin-bottom: 20px;
+        }
+        
+        .cancha-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .cancha-option {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .cancha-option:hover {
+            border-color: #1a1a1a;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .cancha-option.selected {
+            background: #1a1a1a;
+            color: white;
+            border-color: #1a1a1a;
+        }
+        
+        .cancha-option h4 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .cancha-option .precio {
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+        
+        .cancha-option.selected .precio {
+            color: white;
+        }
+        
+        /* Cuadrícula Horaria */
+        .schedule-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid #1a1a1a;
+        }
+        
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(auto-fit, minmax(120px, 1fr));
+            gap: 5px;
+            overflow-x: auto;
+        }
+        
+        .time-slot {
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #1a1a1a;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+        
+        .cancha-header {
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            background: #1a1a1a;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+        
+        .hour-cell {
+            padding: 15px 10px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            border: 2px solid #e0e0e0;
+            font-size: 0.85em;
+        }
+        
+        .hour-cell.available:hover {
+            background: #1a1a1a;
+            color: white;
+            border-color: #1a1a1a;
+            transform: scale(1.05);
+        }
+        
+        .hour-cell.selected {
+            background: #1a1a1a;
+            color: white;
+            border-color: #1a1a1a;
+            transform: scale(1.05);
+        }
+        
+        .hour-cell.occupied {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+            border-color: #ff6b6b;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .hour-cell.unavailable {
+            background: #e0e0e0;
+            color: #999;
+            border-color: #e0e0e0;
+            cursor: not-allowed;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .legend-color.available {
+            background: white;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .legend-color.occupied {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+        }
+        
+        .legend-color.selected {
+            background: #1a1a1a;
+        }
+        
+        /* Resumen */
+        .summary {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid #1a1a1a;
+        }
+        
+        .summary h3 {
+            color: #1a1a1a;
+            margin-bottom: 20px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .summary-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .summary-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .summary-value {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .total {
+            grid-column: 1 / -1;
+            background: #1a1a1a;
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .duration-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .duration-btn {
+            padding: 15px;
+            background: #f0f0f0;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .duration-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .duration-btn.selected {
+            background: #1a1a1a;
+            color: white;
+            border-color: #1a1a1a;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .schedule-grid {
+                grid-template-columns: 60px repeat(auto-fit, minmax(100px, 1fr));
+            }
+            
+            .calendar-day {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container dashboard-container">
+        <div class="header">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-details">
+                    <h2 id="userName">Usuario</h2>
+                    <p id="userPhone">Teléfono</p>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="window.location.href='/dashboard.html'">Dashboard</button>
+            <button class="nav-btn" onclick="window.location.href='/mis-reservas.html'">Mis Reservas</button>
+            <button class="nav-btn" onclick="window.location.href='/ver-canchas.html'">Ver Canchas</button>
+            <button class="nav-btn active" onclick="window.location.href='/nueva-reserva.html'">Nueva Reserva</button>
+            <button class="nav-btn" onclick="window.location.href='/mi-perfil.html'">Mi Perfil</button>
+        </div>
+        
+        <h1 style="color: #1a1a1a; margin-bottom: 30px;">➕ Nueva Reserva</h1>
+        
+        <div id="message" class="message" style="display: none;"></div>
+        
+        <!-- Selector de Día -->
+        <div class="day-selector">
+            <button class="day-nav-btn" id="prevDayBtn" onclick="cambiarDia(-1)" disabled>◀ Anterior</button>
+            <div class="selected-date" id="selectedDate">
+                Hoy
+                <span id="selectedDateFull"></span>
+            </div>
+            <button class="day-nav-btn" onclick="cambiarDia(1)">Siguiente ▶</button>
+        </div>
+        
+        <!-- Selector de Cancha -->
+        <div class="cancha-selector">
+            <h3>🏟️ Selecciona una Cancha</h3>
+            <div class="cancha-options" id="canchaOptions"></div>
+        </div>
+        
+        <!-- Cuadrícula Horaria -->
+        <div class="schedule-section" id="scheduleSection" style="display: none;">
+            <h3 style="color: #1a1a1a; margin-bottom: 20px;">🕐 Selecciona las Horas</h3>
+            <div class="schedule-grid" id="scheduleGrid"></div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color available"></div>
+                    <span>Disponible</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color occupied"></div>
+                    <span>Ocupado</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color selected"></div>
+                    <span>Seleccionado</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Resumen -->
+        <div class="summary" id="summary" style="display: none;">
+            <h3>📋 Resumen de la Reserva</h3>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Cancha</div>
+                    <div class="summary-value" id="summaryCancha">-</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Fecha</div>
+                    <div class="summary-value" id="summaryFecha">-</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Hora</div>
+                    <div class="summary-value" id="summaryHora">-</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Duración</div>
+                    <div class="summary-value" id="summaryDuracion">-</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Precio por hora</div>
+                    <div class="summary-value" id="summaryPrecioHora">-</div>
+                </div>
+                <div class="total">
+                    Total: <span id="summaryTotal">$0</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Notas -->
+        <div class="form-group" style="margin-bottom: 30px;">
+            <label for="notas" style="display: block; margin-bottom: 8px; color: #1a1a1a; font-weight: 600;">Notas (opcional)</label>
+            <textarea id="notas" placeholder="Algún comentario especial..." style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1em; min-height: 100px; resize: vertical;"></textarea>
+        </div>
+        
+        <button class="btn btn-primary" id="confirmarBtn" onclick="confirmarReserva()" disabled>Confirmar Reserva</button>
+        
+        <div class="loading" id="loading"></div>
+    </div>
+    
+    <script>
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user'));
+        
+        if (!token || !user) {
+            window.location.href = '/login';
+        }
+        
+        document.getElementById('userName').textContent = user.nombre + ' ' + user.apellido;
+        document.getElementById('userPhone').textContent = user.telefono;
+        document.getElementById('userAvatar').textContent = user.nombre.charAt(0).toUpperCase();
+        
+        let fechaSeleccionada = new Date();
+        let fechaHoy = new Date();
+        fechaHoy.setHours(0, 0, 0, 0);
+        let canchas = [];
+        let canchaSeleccionada = null;
+        let horasSeleccionadas = [];
+        let disponibilidadData = null;
+        
+        const horas = ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00', '01:00'];
+        
+        function convertirHora12h(hora24) {
+            const [hora, minutos] = hora24.split(':');
+            let horaNum = parseInt(hora);
+            const periodo = horaNum >= 12 ? 'pm' : 'am';
+            
+            if (horaNum === 0) horaNum = 12;
+            else if (horaNum > 12) horaNum -= 12;
+            
+            return `${horaNum}${periodo}`;
+        }
+        
+        function actualizarFechaSeleccionada() {
+            const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const fechaStr = fechaSeleccionada.toLocaleDateString('es-ES', opciones);
+            
+            if (fechaSeleccionada.toDateString() === fechaHoy.toDateString()) {
+                document.getElementById('selectedDate').innerHTML = 'Hoy<span id="selectedDateFull">' + fechaStr + '</span>';
+            } else {
+                document.getElementById('selectedDate').innerHTML = fechaStr;
+            }
+            
+            // Habilitar/deshabilitar botón anterior
+            document.getElementById('prevDayBtn').disabled = fechaSeleccionada <= fechaHoy;
+        }
+        
+        function cambiarDia(delta) {
+            fechaSeleccionada.setDate(fechaSeleccionada.getDate() + delta);
+            
+            // No permitir ir antes de hoy
+            if (fechaSeleccionada < fechaHoy) {
+                fechaSeleccionada = new Date(fechaHoy);
+            }
+            
+            // Limpiar selecciones
+            horasSeleccionadas = [];
+            actualizarFechaSeleccionada();
+            
+            if (canchaSeleccionada) {
+                cargarDisponibilidad();
+            }
+        }
+        
+        async function cargarCanchas() {
+            try {
+                const response = await fetch('/api/canchas');
+                const data = await response.json();
+                
+                if (data.success) {
+                    canchas = data.canchas;
+                    renderizarCanchas();
+                }
+            } catch (error) {
+                console.error('Error al cargar canchas:', error);
+            }
+        }
+        
+        function renderizarCanchas() {
+            const container = document.getElementById('canchaOptions');
+            container.innerHTML = '';
+            
+            canchas.forEach(cancha => {
+                const option = document.createElement('div');
+                option.className = 'cancha-option';
+                option.innerHTML = `
+                    <h4>${cancha.nombre}</h4>
+                    <div class="precio">$${cancha.precio_hora}/hora</div>
+                `;
+                
+                option.onclick = () => seleccionarCancha(cancha.id_cancha, option);
+                container.appendChild(option);
+            });
+        }
+        
+        function seleccionarCancha(canchaId, element) {
+            canchaSeleccionada = canchaId;
+            horasSeleccionadas = [];
+            
+            // Actualizar UI
+            document.querySelectorAll('.cancha-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            // Mostrar cuadrícula horaria
+            document.getElementById('scheduleSection').style.display = 'block';
+            
+            cargarDisponibilidad();
+        }
+        
+        async function cargarDisponibilidad() {
+            if (!canchaSeleccionada) return;
+            
+            const fechaStr = fechaSeleccionada.toISOString().split('T')[0];
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch(`/api/canchas/${canchaSeleccionada}/disponibilidad/${fechaStr}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    disponibilidadData = data.horarios_ocupados;
+                    renderizarCuadrícula();
+                }
+            } catch (error) {
+                console.error('Error al cargar disponibilidad:', error);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+        
+        function renderizarCuadrícula() {
+            const grid = document.getElementById('scheduleGrid');
+            grid.innerHTML = '';
+            
+            // Header de hora
+            const timeHeader = document.createElement('div');
+            timeHeader.className = 'time-slot';
+            timeHeader.textContent = 'Hora';
+            grid.appendChild(timeHeader);
+            
+            // Header de estado
+            const statusHeader = document.createElement('div');
+            statusHeader.className = 'cancha-header';
+            statusHeader.textContent = 'Estado';
+            grid.appendChild(statusHeader);
+            
+            // Filas de horas
+            horas.forEach((hora, index) => {
+                // Calcular hora siguiente para el rango
+                let horaNum = parseInt(hora.split(':')[0]);
+                let horaSiguienteNum = horaNum + 1;
+                
+                // Manejar el caso de 23:00 -> 00:00 y 00:00 -> 01:00
+                if (horaNum === 23) horaSiguienteNum = 0;
+                if (horaNum === 0) horaSiguienteNum = 1;
+                
+                const horaSiguiente = horaSiguienteNum.toString().padStart(2, '0') + ':00';
+                
+                // Convertir a formato 12h
+                const horaInicio12h = convertirHora12h(hora);
+                const horaFin12h = convertirHora12h(horaSiguiente);
+                const rangoHora = `${horaInicio12h}-${horaFin12h}`;
+                
+                // Header de hora
+                const timeCell = document.createElement('div');
+                timeCell.className = 'time-slot';
+                timeCell.textContent = rangoHora;
+                grid.appendChild(timeCell);
+                
+                // Celda de estado
+                const statusCell = document.createElement('div');
+                statusCell.className = 'hour-cell';
+                
+                // Verificar si está ocupado
+                const ocupado = disponibilidadData.some(reserva => {
+                    const reservaInicio = reserva.hora_inicio.substring(0, 5);
+                    const reservaFin = reserva.hora_fin.substring(0, 5);
+                    return hora >= reservaInicio && hora < reservaFin;
+                });
+                
+                if (ocupado) {
+                    statusCell.classList.add('occupied');
+                    statusCell.textContent = '❌ Ocupado';
+                } else {
+                    statusCell.classList.add('available');
+                    statusCell.textContent = 'Disponible';
+                    statusCell.onclick = () => toggleHora(hora, statusCell);
+                }
+                
+                // Marcar seleccionado
+                if (horasSeleccionadas.includes(hora)) {
+                    statusCell.classList.add('selected');
+                    statusCell.textContent = '✓ Seleccionado';
+                }
+                
+                grid.appendChild(statusCell);
+            });
+        }
+        
+        function toggleHora(hora, cell) {
+            const index = horasSeleccionadas.indexOf(hora);
+            
+            if (index > -1) {
+                // Deseleccionar
+                horasSeleccionadas.splice(index, 1);
+                cell.classList.remove('selected');
+                cell.textContent = 'Disponible';
+            } else {
+                // Seleccionar
+                horasSeleccionadas.push(hora);
+                horasSeleccionadas.sort();
+                cell.classList.add('selected');
+                cell.textContent = '✓ Seleccionado';
+            }
+            
+            actualizarResumen();
+        }
+        
+        function actualizarResumen() {
+            if (canchaSeleccionada && horasSeleccionadas.length > 0) {
+                const cancha = canchas.find(c => c.id_cancha === canchaSeleccionada);
+                const totalHoras = horasSeleccionadas.length;
+                const total = cancha.precio_hora * totalHoras;
+                
+                // Calcular rangos de hora en formato 12h
+                const horaInicio = horasSeleccionadas[0];
+                const horaFinIndex = horas.indexOf(horasSeleccionadas[horasSeleccionadas.length - 1]);
+                const horaFin = horas[horaFinIndex + 1] || '02:00';
+                
+                const horaInicio12h = convertirHora12h(horaInicio);
+                const horaFin12h = convertirHora12h(horaFin);
+                const rangoHora = `${horaInicio12h}-${horaFin12h}`;
+                
+                document.getElementById('summaryCancha').textContent = cancha.nombre;
+                document.getElementById('summaryFecha').textContent = fechaSeleccionada.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                document.getElementById('summaryHora').textContent = rangoHora;
+                document.getElementById('summaryDuracion').textContent = `${totalHoras} hora${totalHoras > 1 ? 's' : ''}`;
+                document.getElementById('summaryPrecioHora').textContent = `$${cancha.precio_hora}/hora`;
+                document.getElementById('summaryTotal').textContent = `$${total.toFixed(2)}`;
+                
+                document.getElementById('summary').style.display = 'block';
+                document.getElementById('confirmarBtn').disabled = false;
+            } else {
+                document.getElementById('summary').style.display = 'none';
+                document.getElementById('confirmarBtn').disabled = true;
+            }
+        }
+        
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        async function confirmarReserva() {
+            if (!canchaSeleccionada || horasSeleccionadas.length === 0) {
+                alert('Por favor selecciona una cancha y al menos una hora');
+                return;
+            }
+            
+            // Calcular duración total en minutos
+            const duracionMinutos = horasSeleccionadas.length * 60;
+            
+            const formData = {
+                id_cancha: canchaSeleccionada,
+                fecha: fechaSeleccionada.toISOString().split('T')[0],
+                hora_inicio: horasSeleccionadas[0] + ':00',
+                duracion_minutos: duracionMinutos,
+                notas: document.getElementById('notas').value || null
+            };
+            
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('/api/reservas/crear', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('¡Reserva creada exitosamente! Redirigiendo...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/mis-reservas.html';
+                    }, 2000);
+                } else {
+                    showMessage(data.message || 'Error al crear reserva', 'error');
+                }
+            } catch (error) {
+                console.error('Error al crear reserva:', error);
+                showMessage('Error de conexión. Inténtalo nuevamente.', 'error');
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+        
+        // Inicializar
+        actualizarFechaSeleccionada();
+        cargarCanchas();
+    </script>
+</body>
+</html>
