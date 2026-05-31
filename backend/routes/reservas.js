@@ -2,10 +2,25 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/database');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const { encrypt, decrypt, hashData, verifyHash, sanitizeInput } = require('../utils/security');
+
+// Middleware para verificar CSRF
+const verifyCSRF = (req, res, next) => {
+    const csrfToken = req.cookies.csrfToken || req.headers['x-csrf-token'];
+    const clientCSRF = req.body._csrf || req.headers['x-csrf-token'];
+    
+    if (!csrfToken || !clientCSRF || csrfToken !== clientCSRF) {
+        return res.status(403).json({ success: false, message: 'Error de validación CSRF' });
+    }
+    
+    next();
+};
 
 // Middleware para verificar token
 const verifyToken = (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1];
+    // Intentar obtener token de cookie primero, luego de header
+    const token = req.cookies.token || req.headers['authorization']?.split(' ')[1];
     
     if (!token) {
         return res.status(401).json({ success: false, message: 'Token no proporcionado' });
@@ -32,7 +47,18 @@ router.get('/mis-reservas', verifyToken, async (req, res) => {
             [req.user.id_usuario]
         );
         
-        res.json({ success: true, reservas });
+        // Verificar integridad de notas
+        const reservasVerificadas = reservas.map(r => {
+            if (r.notas && r.notas_hash) {
+                const hashValido = verifyHash(r.notas, r.notas_hash);
+                if (!hashValido) {
+                    console.warn('Hash de notas inválido para reserva:', r.id_reservacion);
+                }
+            }
+            return r;
+        });
+        
+        res.json({ success: true, reservas: reservasVerificadas });
     } catch (error) {
         console.error('Error al obtener reservas:', error);
         res.status(500).json({ success: false, message: 'Error al obtener reservas' });
@@ -40,7 +66,7 @@ router.get('/mis-reservas', verifyToken, async (req, res) => {
 });
 
 // Crear nueva reserva
-router.post('/crear', verifyToken, async (req, res) => {
+router.post('/crear', verifyToken, verifyCSRF, async (req, res) => {
     try {
         const { id_cancha, fecha, hora_inicio, duracion_minutos, notas } = req.body;
         
@@ -51,6 +77,12 @@ router.post('/crear', verifyToken, async (req, res) => {
                 message: 'Todos los campos son requeridos' 
             });
         }
+        
+        // Sanitizar notas si existen
+        const notasSanitizadas = notas ? sanitizeInput(notas) : null;
+        
+        // Generar hash de notas para integridad
+        const notasHash = notasSanitizadas ? hashData(notasSanitizadas) : null;
         
         // Verificar disponibilidad
         const [existente] = await pool.query(
@@ -72,9 +104,9 @@ router.post('/crear', verifyToken, async (req, res) => {
         // Crear reserva
         const [result] = await pool.query(
             `INSERT INTO reservaciones 
-             (id_usuario, id_cancha, fecha, hora_inicio, duracion_minutos, hora_fin, notas, estado) 
-             VALUES (?, ?, ?, ?, ?, ADDTIME(?, SEC_TO_TIME(? * 60)), ?, 'PENDIENTE_PAGO')`,
-            [req.user.id_usuario, id_cancha, fecha, hora_inicio, duracion_minutos, hora_inicio, duracion_minutos, notas || null]
+             (id_usuario, id_cancha, fecha, hora_inicio, duracion_minutos, hora_fin, notas, notas_hash, estado) 
+             VALUES (?, ?, ?, ?, ?, ADDTIME(?, SEC_TO_TIME(? * 60)), ?, ?, 'PENDIENTE_PAGO')`,
+            [req.user.id_usuario, id_cancha, fecha, hora_inicio, duracion_minutos, hora_inicio, duracion_minutos, notasSanitizadas, notasHash]
         );
         
         res.json({ 
@@ -90,7 +122,7 @@ router.post('/crear', verifyToken, async (req, res) => {
 });
 
 // Cancelar reserva
-router.put('/cancelar/:id', verifyToken, async (req, res) => {
+router.put('/cancelar/:id', verifyToken, verifyCSRF, async (req, res) => {
     try {
         const id_reservacion = req.params.id;
         

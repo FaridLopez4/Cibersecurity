@@ -58,6 +58,10 @@ CREATE TABLE usuarios (
 
     password_hash VARCHAR(255) NOT NULL,
 
+    mfa_secret VARCHAR(255),
+
+    mfa_enabled BOOLEAN DEFAULT FALSE,
+
     id_rol INT NOT NULL DEFAULT 2,
 
     penalizado BOOLEAN DEFAULT FALSE,
@@ -187,6 +191,8 @@ CREATE TABLE reservaciones (
     ) DEFAULT 'PENDIENTE_PAGO',
 
     notas TEXT,
+
+    notas_hash VARCHAR(64),
 
     cancelada_por INT NULL,
 

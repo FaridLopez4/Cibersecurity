@@ -503,10 +503,29 @@
     </div>
     
     <script>
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user'));
+        // Advertencia de Self-XSS
+        console.log('%c⚠️ ADVERTENCIA DE SEGURIDAD ⚠️', 'color: red; font-size: 20px; font-weight: bold;');
+        console.log('%cNo pegues código JavaScript en esta consola. Podría comprometer tu cuenta.', 'color: orange; font-size: 14px;');
+        console.log('%cSi alguien te pide que pegues código aquí, es un intento de ataque.', 'color: orange; font-size: 14px;');
         
-        if (!token || !user) {
+        let csrfToken = null;
+        
+        // Obtener token CSRF
+        async function getCSRFToken() {
+            try {
+                const response = await fetch('/api/auth/csrf-token', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                csrfToken = data.csrfToken;
+            } catch (error) {
+                console.error('Error al obtener token CSRF:', error);
+            }
+        }
+        
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        
+        if (!user) {
             window.location.href = '/login';
         }
         
@@ -787,8 +806,9 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'X-CSRF-Token': csrfToken
                     },
+                    credentials: 'include',
                     body: JSON.stringify(formData)
                 });
                 
@@ -812,12 +832,12 @@
         }
         
         function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+            sessionStorage.removeItem('user');
             window.location.href = '/login';
         }
         
         // Inicializar
+        getCSRFToken();
         actualizarFechaSeleccionada();
         cargarCanchas();
     </script>

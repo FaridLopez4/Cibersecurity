@@ -238,10 +238,14 @@
     </div>
     
     <script>
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user'));
+        // Advertencia de Self-XSS
+        console.log('%c⚠️ ADVERTENCIA DE SEGURIDAD ⚠️', 'color: red; font-size: 20px; font-weight: bold;');
+        console.log('%cNo pegues código JavaScript en esta consola. Podría comprometer tu cuenta.', 'color: orange; font-size: 14px;');
+        console.log('%cSi alguien te pide que pegues código aquí, es un intento de ataque.', 'color: orange; font-size: 14px;');
         
-        if (!token || !user) {
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        
+        if (!user) {
             window.location.href = '/login';
         }
         
@@ -306,13 +310,12 @@
         }
         
         function reservar(idCancha, nombreCancha) {
-            localStorage.setItem('canchaSeleccionada', JSON.stringify({ id: idCancha, nombre: nombreCancha }));
+            sessionStorage.setItem('canchaSeleccionada', JSON.stringify({ id: idCancha, nombre: nombreCancha }));
             window.location.href = '/nueva-reserva.html';
         }
         
         function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+            sessionStorage.removeItem('user');
             window.location.href = '/login';
         }
         

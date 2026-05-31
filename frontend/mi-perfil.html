@@ -310,14 +310,53 @@
             </form>
         </div>
         
+        <!-- Autenticación de Dos Factores (MFA) -->
+        <div class="mfa-section">
+            <h3>🔐 Autenticación de Dos Factores (MFA)</h3>
+            <div id="mfaStatus">
+                <p>Estado: <span id="mfaStatusText">Cargando...</span></p>
+                <button id="mfaToggleBtn" class="btn btn-primary" onclick="toggleMFA()">Configurar MFA</button>
+            </div>
+            <div id="mfaSetup" style="display: none;">
+                <p>Escanea este código QR con Google Authenticator:</p>
+                <div id="qrCode" style="text-align: center; margin: 20px 0;"></div>
+                <p>Código manual: <strong id="mfaSecret"></strong></p>
+                <div class="form-group">
+                    <label for="mfaVerifyToken">Ingresa el código de la aplicación:</label>
+                    <input type="text" id="mfaVerifyToken" placeholder="123456" maxlength="6">
+                </div>
+                <button class="btn btn-primary" onclick="enableMFA()">Habilitar MFA</button>
+                <button class="btn btn-secondary" onclick="cancelMFA()">Cancelar</button>
+            </div>
+        </div>
+        
         <div class="loading" id="loading"></div>
     </div>
     
     <script>
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user'));
+        // Advertencia de Self-XSS
+        console.log('%c⚠️ ADVERTENCIA DE SEGURIDAD ⚠️', 'color: red; font-size: 20px; font-weight: bold;');
+        console.log('%cNo pegues código JavaScript en esta consola. Podría comprometer tu cuenta.', 'color: orange; font-size: 14px;');
+        console.log('%cSi alguien te pide que pegues código aquí, es un intento de ataque.', 'color: orange; font-size: 14px;');
         
-        if (!token || !user) {
+        let csrfToken = null;
+        
+        // Obtener token CSRF
+        async function getCSRFToken() {
+            try {
+                const response = await fetch('/api/auth/csrf-token', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                csrfToken = data.csrfToken;
+            } catch (error) {
+                console.error('Error al obtener token CSRF:', error);
+            }
+        }
+        
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        
+        if (!user) {
             window.location.href = '/login';
         }
         
@@ -346,9 +385,7 @@
         async function cargarEstadisticas() {
             try {
                 const response = await fetch('/api/reservas/mis-reservas', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    credentials: 'include'
                 });
                 
                 const data = await response.json();
@@ -397,20 +434,21 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'X-CSRF-Token': csrfToken
                     },
+                    credentials: 'include',
                     body: JSON.stringify(formData)
                 });
                 
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Actualizar localStorage
+                    // Actualizar sessionStorage
                     user.nombre = formData.nombre;
                     user.apellido = formData.apellido;
                     user.email = formData.email;
                     user.telefono = formData.telefono;
-                    localStorage.setItem('user', JSON.stringify(user));
+                    sessionStorage.setItem('user', JSON.stringify(user));
                     
                     showMessage('Información actualizada exitosamente', 'success');
                     cargarPerfil();
@@ -444,8 +482,9 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'X-CSRF-Token': csrfToken
                     },
+                    credentials: 'include',
                     body: JSON.stringify({ passwordActual, nuevaPassword })
                 });
                 
@@ -465,12 +504,140 @@
         });
         
         function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+            sessionStorage.removeItem('user');
             window.location.href = '/login';
         }
         
+        // MFA Functions
+        async function checkMFAStatus() {
+            try {
+                const response = await fetch('/api/auth/mfa/status', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const statusText = document.getElementById('mfaStatusText');
+                    const toggleBtn = document.getElementById('mfaToggleBtn');
+                    
+                    if (data.mfa_enabled) {
+                        statusText.textContent = 'Habilitado';
+                        statusText.style.color = 'green';
+                        toggleBtn.textContent = 'Deshabilitar MFA';
+                        toggleBtn.onclick = disableMFA;
+                    } else {
+                        statusText.textContent = 'Deshabilitado';
+                        statusText.style.color = 'orange';
+                        toggleBtn.textContent = 'Configurar MFA';
+                        toggleBtn.onclick = toggleMFA;
+                    }
+                }
+            } catch (error) {
+                console.error('Error al verificar estado MFA:', error);
+            }
+        }
+        
+        async function toggleMFA() {
+            try {
+                const response = await fetch('/api/auth/mfa/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('mfaStatus').style.display = 'none';
+                    document.getElementById('mfaSetup').style.display = 'block';
+                    document.getElementById('qrCode').innerHTML = `<img src="${data.qrCode}" alt="QR Code" style="max-width: 200px;">`;
+                    document.getElementById('mfaSecret').textContent = data.secret;
+                } else {
+                    showMessage(data.message || 'Error al generar secreto MFA', 'error');
+                }
+            } catch (error) {
+                console.error('Error al generar MFA:', error);
+                showMessage('Error al generar MFA', 'error');
+            }
+        }
+        
+        async function enableMFA() {
+            const token = document.getElementById('mfaVerifyToken').value;
+            
+            if (!token || token.length !== 6) {
+                showMessage('Ingresa un código de 6 dígitos', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/mfa/enable', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ token })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('MFA habilitado exitosamente', 'success');
+                    document.getElementById('mfaSetup').style.display = 'none';
+                    document.getElementById('mfaStatus').style.display = 'block';
+                    checkMFAStatus();
+                } else {
+                    showMessage(data.message || 'Error al habilitar MFA', 'error');
+                }
+            } catch (error) {
+                console.error('Error al habilitar MFA:', error);
+                showMessage('Error al habilitar MFA', 'error');
+            }
+        }
+        
+        async function disableMFA() {
+            if (!confirm('¿Estás seguro de deshabilitar MFA? Esto reducirá la seguridad de tu cuenta.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/mfa/disable', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('MFA deshabilitado', 'success');
+                    checkMFAStatus();
+                } else {
+                    showMessage(data.message || 'Error al deshabilitar MFA', 'error');
+                }
+            } catch (error) {
+                console.error('Error al deshabilitar MFA:', error);
+                showMessage('Error al deshabilitar MFA', 'error');
+            }
+        }
+        
+        function cancelMFA() {
+            document.getElementById('mfaSetup').style.display = 'none';
+            document.getElementById('mfaStatus').style.display = 'block';
+            document.getElementById('mfaVerifyToken').value = '';
+        }
+        
+        // Inicializar
+        getCSRFToken();
         cargarPerfil();
+        checkMFAStatus();
     </script>
 </body>
 </html>

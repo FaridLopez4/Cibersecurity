@@ -426,10 +426,29 @@
     </div>
     
     <script>
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user'));
+        // Advertencia de Self-XSS
+        console.log('%c⚠️ ADVERTENCIA DE SEGURIDAD ⚠️', 'color: red; font-size: 20px; font-weight: bold;');
+        console.log('%cNo pegues código JavaScript en esta consola. Podría comprometer tu cuenta.', 'color: orange; font-size: 14px;');
+        console.log('%cSi alguien te pide que pegues código aquí, es un intento de ataque.', 'color: orange; font-size: 14px;');
         
-        if (!token || !user || user.rol !== 1) {
+        let csrfToken = null;
+        
+        // Obtener token CSRF
+        async function getCSRFToken() {
+            try {
+                const response = await fetch('/api/auth/csrf-token', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                csrfToken = data.csrfToken;
+            } catch (error) {
+                console.error('Error al obtener token CSRF:', error);
+            }
+        }
+        
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        
+        if (!user || user.rol !== 1) {
             window.location.href = '/login';
         }
         
@@ -454,9 +473,7 @@
             
             try {
                 const response = await fetch('/api/reservas/dashboard', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    credentials: 'include'
                 });
                 
                 const data = await response.json();
@@ -532,9 +549,7 @@
             
             try {
                 const response = await fetch(`/api/reservas/estadisticas?periodo=${periodo}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    credentials: 'include'
                 });
                 
                 const data = await response.json();
@@ -556,9 +571,7 @@
             
             try {
                 const response = await fetch('/api/reservas/todas', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    credentials: 'include'
                 });
                 
                 const data = await response.json();
@@ -631,12 +644,12 @@
         }
         
         function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+            sessionStorage.removeItem('user');
             window.location.href = '/login';
         }
         
         // Cargar datos al inicio
+        getCSRFToken();
         cargarDashboard();
         cargarVentas('hoy', document.querySelector('.period-btn.active'));
         cargarTodasReservas();

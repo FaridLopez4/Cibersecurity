@@ -4,6 +4,8 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const crypto = require('crypto');
+const https = require('https');
+const fs = require('fs');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
@@ -11,7 +13,13 @@ const reservasRoutes = require('./routes/reservas');
 const canchasRoutes = require('./routes/canchas');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 443;
+
+// Configuración SSL
+const sslOptions = {
+    key: fs.readFileSync(path.join(__dirname, '../ssl/private-key.pem')),
+    cert: fs.readFileSync(path.join(__dirname, '../ssl/certificate.pem'))
+};
 
 // Security headers con Helmet
 app.use(helmet({
@@ -59,7 +67,7 @@ app.use((req, res, next) => {
 
 // Middleware
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL || 'https://localhost:443',
     credentials: true
 }));
 app.use(cookieParser());
@@ -74,26 +82,13 @@ app.use('/api/auth', authRoutes);
 app.use('/api/reservas', reservasRoutes);
 app.use('/api/canchas', canchasRoutes);
 
-// Ruta principal
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
-
-// Rutas para las páginas HTML
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/login.html'));
-});
-
-app.get('/registro', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/registro.html'));
-});
-
-app.get('/recuperar', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/recuperar.html'));
-});
-
+// Rutas del frontend
 app.get('/dashboard.html', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/dashboard.html'));
+});
+
+app.get('/mi-perfil.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/mi-perfil.html'));
 });
 
 app.get('/mis-reservas.html', (req, res) => {
@@ -108,14 +103,17 @@ app.get('/nueva-reserva.html', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/nueva-reserva.html'));
 });
 
-app.get('/mi-perfil.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/mi-perfil.html'));
-});
-
 app.get('/admin-dashboard.html', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/admin-dashboard.html'));
 });
 
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+// Ruta por defecto
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/login.html'));
+});
+
+// Iniciar servidor HTTPS
+https.createServer(sslOptions, app).listen(PORT, () => {
+    console.log(`Servidor HTTPS corriendo en puerto ${PORT}`);
+    console.log(`Accede a: https://localhost:${PORT}`);
 });
