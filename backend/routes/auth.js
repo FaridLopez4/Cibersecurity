@@ -616,6 +616,36 @@ router.get('/google/callback',
                 path: '/'
             });
 
+            // Obtener datos completos del usuario para sessionStorage
+            const [users] = await pool.query(
+                'SELECT id_usuario, nombre, apellido, telefono, email, id_rol FROM usuarios WHERE id_usuario = ?',
+                [req.user.id_usuario]
+            );
+
+            const user = users[0];
+
+            // Descifrar email si existe
+            const emailDescifrado = user.email ? decrypt(user.email) : null;
+
+            // Crear objeto de usuario para sessionStorage
+            const userSession = {
+                id_usuario: user.id_usuario,
+                nombre: user.nombre,
+                apellido: user.apellido,
+                telefono: user.telefono,
+                email: emailDescifrado,
+                rol: user.id_rol
+            };
+
+            // Redirigir al dashboard con datos de usuario en cookie temporal
+            res.cookie('userSession', JSON.stringify(userSession), {
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 5000, // 5 segundos
+                path: '/'
+            });
+
             // Redirigir al dashboard
             res.redirect('/dashboard.html');
         } catch (error) {

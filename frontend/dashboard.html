@@ -179,7 +179,26 @@
         console.log('%cSi alguien te pide que pegues código aquí, es un intento de ataque.', 'color: orange; font-size: 14px;');
         
         // Verificar si el usuario está logueado
-        const user = JSON.parse(sessionStorage.getItem('user'));
+        let user = JSON.parse(sessionStorage.getItem('user'));
+        
+        // Si no hay usuario en sessionStorage, intentar leer de cookie (Google OAuth2)
+        if (!user) {
+            const userSessionCookie = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('userSession='));
+            
+            if (userSessionCookie) {
+                try {
+                    const userSessionData = decodeURIComponent(userSessionCookie.split('=')[1]);
+                    user = JSON.parse(userSessionData);
+                    sessionStorage.setItem('user', JSON.stringify(user));
+                    // Limpiar cookie temporal
+                    document.cookie = 'userSession=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                } catch (error) {
+                    console.error('Error al leer cookie de sesión:', error);
+                }
+            }
+        }
         
         if (!user) {
             window.location.href = '/login';
